@@ -1,9 +1,21 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import ExperimentsPage from "./pages/ExperimentsPage";
+import ScatterplotsPage from "./pages/ScatterplotsPage";
+import ComparePage from "./pages/ComparePage";
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-[#2329AF]">
-        Uncountable Data Viz
-      </h1>
+    <div className="min-h-screen bg-(--color-background)">
+      <Navbar />
+      <main className="p-8">
+        <Routes>
+          <Route path="/" element={<Navigate to="/experiments" replace />} />
+          <Route path="/experiments" element={<ExperimentsPage />} />
+          <Route path="/scatter-plots" element={<ScatterplotsPage />} />
+          <Route path="/compare" element={<ComparePage />} />
+        </Routes>
+      </main>
     </div>
   );
 }
