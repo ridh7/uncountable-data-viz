@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -43,10 +43,11 @@ function CustomDot(props: any) {
 
 function ScatterPlot({ experiments }: ScatterPlotProps) {
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
-  const selectableColumns = columns.filter((c) => c.type !== "meta");
+  const inputColumns = columns.filter((c) => c.type === "input");
+  const outputColumns = columns.filter((c) => c.type === "output");
 
-  const [xKey, setXKey] = useState(selectableColumns[0]?.key ?? "");
-  const [yKey, setYKey] = useState(selectableColumns[1]?.key ?? "");
+  const [xKey, setXKey] = useState(inputColumns[0]?.key ?? "");
+  const [yKey, setYKey] = useState(outputColumns[0]?.key ?? "");
 
   function getValue(exp: Experiment, key: string): number {
     return exp.inputs[key] ?? exp.outputs[key] ?? 0;
@@ -104,6 +105,37 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
     );
   }
 
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  const exportPng = useCallback(() => {
+    const svg = chartRef.current?.querySelector("svg");
+    if (!svg) return;
+    const { width, height } = svg.getBoundingClientRect();
+    const serialized = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([serialized], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      const ctx = canvas.getContext("2d")!;
+      ctx.scale(scale, scale);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      const link = document.createElement("a");
+      link.download = `scatter_${xKey}_vs_${yKey}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+    img.src = url;
+  }, [xKey, yKey]);
+
   const selectClass =
     "text-sm border border-(--color-border) rounded-md px-3 h-9 text-(--color-text) outline-none focus:border-(--color-primary) bg-white";
 
@@ -112,46 +144,90 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
       <div className="bg-white border border-(--color-border) rounded-t-lg border-b border-b-(--color-border)">
         <div className="px-4 pt-3 pb-1">
           <p className="text-xs text-(--color-text-secondary) mb-3">
-            Select any two properties to visualize their relationship across all experiments
+            Select any two properties to visualize their relationship across all
+            experiments
           </p>
         </div>
-        <div className="flex items-center gap-6 px-4 pb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-(--color-text-secondary)">
-              X Axis
-            </span>
-            <select
-              value={xKey}
-              onChange={(e) => setXKey(e.target.value)}
-              className={selectClass}
-            >
-              {selectableColumns.map((c) => (
-                <option key={c.key} value={c.key}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+        <div className="flex items-center justify-between px-4 pb-3">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-(--color-text-secondary)">
+                X-Axis
+              </span>
+              <select
+                value={xKey}
+                onChange={(e) => setXKey(e.target.value)}
+                className={selectClass}
+              >
+                <optgroup label="Inputs">
+                  {inputColumns.map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.label}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Outputs">
+                  {outputColumns.map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.label}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-(--color-text-secondary)">
+                Y-Axis
+              </span>
+              <select
+                value={yKey}
+                onChange={(e) => setYKey(e.target.value)}
+                className={selectClass}
+              >
+                <optgroup label="Inputs">
+                  {inputColumns.map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.label}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Outputs">
+                  {outputColumns.map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.label}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-(--color-text-secondary)">
-              Y Axis
-            </span>
-            <select
-              value={yKey}
-              onChange={(e) => setYKey(e.target.value)}
-              className={selectClass}
+          <button
+            onClick={exportPng}
+            className="flex items-center gap-1.5 text-sm font-medium rounded-md px-3 h-9 text-white bg-(--color-primary) hover:opacity-90 active:opacity-80 transition-opacity"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {selectableColumns.map((c) => (
-                <option key={c.key} value={c.key}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </div>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 bg-white border border-(--color-border) rounded-b-lg p-4 border-t-0">
+      <div
+        ref={chartRef}
+        className="flex-1 min-h-0 bg-white border border-(--color-border) rounded-b-lg p-4 border-t-0"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={theme.colors.border} />
