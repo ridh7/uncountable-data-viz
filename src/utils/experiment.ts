@@ -29,7 +29,6 @@ export function getColumnDefs(experiments: Experiment[]): ColumnDef[] {
       type: "meta",
     },
     { key: "date", label: "Date", type: "meta" },
-    { key: "activeIngredients", label: "Active Ingredients", type: "meta" },
   ];
   const inputs: ColumnDef[] = Object.keys(first.inputs).map((k) => ({
     key: k,
@@ -44,18 +43,12 @@ export function getColumnDefs(experiments: Experiment[]): ColumnDef[] {
   return [...meta, ...inputs, ...outputs];
 }
 
-export function getActiveIngredientsCount(inputs: Record<string, number>) {
-  return Object.values(inputs).filter((v) => v > 0).length;
-}
-
 export function getCellValue(
   experiment: Experiment,
   key: string,
 ): string | number {
   if (key === "id") return experiment.id;
   if (key === "date") return experiment.date.toLocaleDateString();
-  if (key === "activeIngredients")
-    return getActiveIngredientsCount(experiment.inputs);
   if (key in experiment.inputs) return experiment.inputs[key];
   if (key in experiment.outputs) return experiment.outputs[key];
   return "—";

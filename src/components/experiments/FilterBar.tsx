@@ -21,7 +21,8 @@ function FilterBar({
   onFilterMaxChange,
   onClear,
 }: FilterBarProps) {
-  const filterableColumns = columns.filter((c) => c.type !== "meta");
+  const inputColumns = columns.filter((c) => c.type === "input");
+  const outputColumns = columns.filter((c) => c.type === "output");
   const hasFilter = filterColumn || filterMin || filterMax;
 
   return (
@@ -33,11 +34,20 @@ function FilterBar({
         className="text-sm border border-(--color-border) rounded-md px-3 py-1.5 h-9 text-(--color-text) outline-none focus:border-(--color-primary)"
       >
         <option value="">Select field..</option>
-        {filterableColumns.map((c) => (
-          <option key={c.key} value={c.key}>
-            {c.label}
-          </option>
-        ))}
+        <optgroup label="Inputs">
+          {inputColumns.map((c) => (
+            <option key={c.key} value={c.key}>
+              {c.label}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="Outputs">
+          {outputColumns.map((c) => (
+            <option key={c.key} value={c.key}>
+              {c.label}
+            </option>
+          ))}
+        </optgroup>
       </select>
       <input
         type="number"

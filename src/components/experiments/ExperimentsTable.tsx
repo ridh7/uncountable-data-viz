@@ -11,6 +11,10 @@ interface ExperimentTableProps {
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 const DEFAULT_VISIBLE: ColumnDef["type"][] = ["meta", "output"];
 
+function isRightAligned(col: ColumnDef) {
+  return col.key !== "id";
+}
+
 function ExperimentsTable({ experiments }: ExperimentTableProps) {
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
 
@@ -101,17 +105,19 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-(--color-border) bg-(--color-background) sticky top-0">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide whitespace-nowrap w-10">#</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide whitespace-nowrap w-10">
+                #
+              </th>
               {displayedColumns.map((col) => (
                 <th
                   key={col.key}
                   onClick={() => handleSort(col.key)}
-                  className="px-4 py-3 text-left text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide cursor-pointer hover:text-(--color-primary) whitespace-nowrap select-none"
+                  className={`px-4 py-3 ${isRightAligned(col) ? "text-right" : "text-left"} text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide cursor-pointer hover:text-(--color-primary) whitespace-nowrap select-none`}
                 >
-                  {col.label}
-                  {sortKey === col.key && (
-                    <span className="ml-1">{sortAsc ? "↑" : "↓"}</span>
-                  )}
+                  <span className="inline-flex items-center gap-1">
+                    {col.label}
+                    {sortKey === col.key && <span>{sortAsc ? "↑" : "↓"}</span>}
+                  </span>
                 </th>
               ))}
             </tr>
@@ -122,7 +128,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
                 key={exp.key}
                 className="border-b border-(--color-border) last:border-0 hover:bg-(--color-background) transition-colors"
               >
-                <td className="px-4 py-3 text-xs text-(--color-text-secondary) w-10">
+                <td className="px-4 py-3 text-right text-xs text-(--color-text-secondary) w-10">
                   {(page - 1) * pageSize + i + 1}
                 </td>
                 {displayedColumns.map((col) => {
@@ -131,19 +137,15 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
                   return (
                     <td
                       key={col.key}
-                      className={`px-4 py-3 whitespace-nowrap ${
-                        col.type === "meta"
+                      className={`px-4 py-3 whitespace-nowrap ${isRightAligned(col) ? "text-right" : "text-left"} ${
+                        col.key === "id"
                           ? "font-semibold text-(--color-text)"
                           : ""
                       } ${
                         isZero ? "text-(--color-muted)" : "text-(--color-text)"
                       }`}
                     >
-                      {typeof value === "number"
-                        ? col.key === "activeIngredients"
-                          ? value
-                          : value.toFixed(1)
-                        : value}
+                      {typeof value === "number" ? value.toFixed(1) : value}
                     </td>
                   );
                 })}
@@ -172,7 +174,9 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
         </div>
         <div className="flex items-center gap-4">
           <span>
-            Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length} experiments
+            Showing {(page - 1) * pageSize + 1}–
+            {Math.min(page * pageSize, filtered.length)} of {filtered.length}{" "}
+            experiments
           </span>
           <div className="flex gap-2">
             <button
