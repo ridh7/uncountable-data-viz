@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
 import ExperimentsPage from "./pages/ExperimentsPage.tsx";
-import ScatterplotsPage from "./pages/ScatterplotsPage.tsx";
+import ScatterPlotPage from "./pages/ScatterPlotPage.tsx";
 import ComparePage from "./pages/ComparePage.tsx";
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/experiments" replace />} />
           <Route path="/experiments" element={<ExperimentsPage />} />
-          <Route path="/scatter-plots" element={<ScatterplotsPage />} />
+          <Route path="/scatter-plot" element={<ScatterPlotPage />} />
           <Route path="/compare" element={<ComparePage />} />
         </Routes>
       </main>
