@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# Uncountable Data Viz
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A front-end data visualization app that provides three views for exploring a dataset of materials science experiments, each with a set of input parameters and measured outputs.
 
-Currently, two official plugins are available:
+## Views
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Experiments
 
-## React Compiler
+A sortable, filterable table of all experiments. Columns can be toggled on/off via a column selector. Input and output columns are visually distinguished.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Scatter Plot
 
-## Expanding the ESLint configuration
+An interactive scatter plot for exploring relationships between any two columns (inputs or outputs). Axes are grouped by type (Inputs / Outputs) in the selector dropdowns.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Histograms
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Filter experiments by an output measurement and value range, then see the distribution of input parameters across matching experiments. Inputs are grouped by category (Polymers, Fillers, Plasticizers, etc.) and rendered as grouped bar histograms.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **React 19** + **TypeScript**
+- **Vite** for bundling and dev server
+- **Tailwind CSS v4** for styling
+- **Recharts** for charts
+- **React Router v7** for navigation
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start the dev server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be available at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Type-check and build for production
+npm run build
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Preview the production build
+npm run preview
 ```
