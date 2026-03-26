@@ -1,0 +1,200 @@
+import { useState, useMemo } from "react";
+import type { Experiment, ColumnDef } from "../../types/experiment.ts";
+import { getColumnDefs, getCellValue } from "../../utils/experiment.ts";
+import FilterBar from "./FilterBar.tsx";
+import ColumnSelector from "./ColumnSelector.tsx";
+
+interface ExperimentTableProps {
+  experiments: Experiment[];
+}
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
+const DEFAULT_VISIBLE: ColumnDef["type"][] = ["meta", "output"];
+
+function ExperimentsTable({ experiments }: ExperimentTableProps) {
+  const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
+
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(() =>
+    columns.filter((c) => DEFAULT_VISIBLE.includes(c.type)).map((c) => c.key),
+  );
+  const [sortKey, setSortKey] = useState<string>("id");
+  const [sortAsc, setSortAsc] = useState(true);
+  const [filterColumn, setFilterColumn] = useState("");
+  const [filterMin, setFilterMin] = useState("");
+  const [filterMax, setFilterMax] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  function handleFilterClear() {
+    setFilterColumn("");
+    setFilterMin("");
+    setFilterMax("");
+    setPage(1);
+  }
+
+  function handleSort(key: string) {
+    if (sortKey === key) setSortAsc((a) => !a);
+    else {
+      setSortKey(key);
+      setSortAsc(true);
+    }
+    setPage(1);
+  }
+
+  const filtered = useMemo(() => {
+    return experiments.filter((exp) => {
+      if (!filterColumn) return true;
+      const val = exp.outputs[filterColumn] ?? exp.inputs[filterColumn];
+      if (filterMin && val < parseFloat(filterMin)) return false;
+      if (filterMax && val > parseFloat(filterMax)) return false;
+      return true;
+    });
+  }, [experiments, filterColumn, filterMin, filterMax]);
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const va = getCellValue(a, sortKey);
+      const vb = getCellValue(b, sortKey);
+      if (va < vb) return sortAsc ? -1 : 1;
+      if (va > vb) return sortAsc ? 1 : -1;
+      return 0;
+    });
+  }, [filtered, sortKey, sortAsc]);
+
+  const totalPages = Math.ceil(sorted.length / pageSize);
+  const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
+  const displayedColumns = columns.filter((c) =>
+    visibleColumns.includes(c.key),
+  );
+
+  return (
+    <div className="h-full flex flex-col gap-4">
+      <div className="bg-white border border-(--color-border) rounded-lg overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-(--color-border) sticky top-0 bg-white z-10">
+          <FilterBar
+            columns={columns}
+            filterColumn={filterColumn}
+            filterMin={filterMin}
+            filterMax={filterMax}
+            onFilterColumnChange={(k) => {
+              setFilterColumn(k);
+              setPage(1);
+            }}
+            onFilterMinChange={(v) => {
+              setFilterMin(v);
+              setPage(1);
+            }}
+            onFilterMaxChange={(v) => {
+              setFilterMax(v);
+              setPage(1);
+            }}
+            onClear={handleFilterClear}
+          />
+          <ColumnSelector
+            columns={columns}
+            visibleColumns={visibleColumns}
+            onChange={setVisibleColumns}
+          />
+        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-(--color-border) bg-(--color-background) sticky top-0">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide whitespace-nowrap w-10">#</th>
+              {displayedColumns.map((col) => (
+                <th
+                  key={col.key}
+                  onClick={() => handleSort(col.key)}
+                  className="px-4 py-3 text-left text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide cursor-pointer hover:text-(--color-primary) whitespace-nowrap select-none"
+                >
+                  {col.label}
+                  {sortKey === col.key && (
+                    <span className="ml-1">{sortAsc ? "↑" : "↓"}</span>
+                  )}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {paginated.map((exp, i) => (
+              <tr
+                key={exp.key}
+                className="border-b border-(--color-border) last:border-0 hover:bg-(--color-background) transition-colors"
+              >
+                <td className="px-4 py-3 text-xs text-(--color-text-secondary) w-10">
+                  {(page - 1) * pageSize + i + 1}
+                </td>
+                {displayedColumns.map((col) => {
+                  const value = getCellValue(exp, col.key);
+                  const isZero = typeof value === "number" && value === 0;
+                  return (
+                    <td
+                      key={col.key}
+                      className={`px-4 py-3 whitespace-nowrap ${
+                        col.type === "meta"
+                          ? "font-semibold text-(--color-text)"
+                          : ""
+                      } ${
+                        isZero ? "text-(--color-muted)" : "text-(--color-text)"
+                      }`}
+                    >
+                      {typeof value === "number"
+                        ? col.key === "activeIngredients"
+                          ? value
+                          : value.toFixed(1)
+                        : value}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/*Pagination*/}
+      <div className="flex items-center justify-between text-sm text-(--color-text-secondary)">
+        <div className="flex items-center gap-2">
+          <span>Rows per page:</span>
+          {PAGE_SIZE_OPTIONS.map((size) => (
+            <button
+              key={size}
+              onClick={() => {
+                setPageSize(size);
+                setPage(1);
+              }}
+              className={`px-2 py-0.5 rounded ${pageSize === size ? "bg-(--color-primary) text-white font-semibold" : "hover:text-(--color-primary)"}`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-4">
+          <span>
+            Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length} experiments
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1 rounded border border-(--color-border) disabled:opacity-30 hover:border-(--color-primary) hover:text-(--color-primary) transition-colors"
+            >
+              ←
+            </button>
+            <span className="px-2 py-1">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1 rounded border border-(--color-border) disabled:opacity-30 hover:border-(--color-primary) hover:text-(--color-primary) transition-colors"
+            >
+              →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ExperimentsTable;

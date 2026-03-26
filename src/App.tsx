@@ -1,14 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import ExperimentsPage from "./pages/ExperimentsPage";
-import ScatterplotsPage from "./pages/ScatterplotsPage";
-import ComparePage from "./pages/ComparePage";
+import Navbar from "./components/Navbar.tsx";
+import ExperimentsPage from "./pages/ExperimentsPage.tsx";
+import ScatterplotsPage from "./pages/ScatterplotsPage.tsx";
+import ComparePage from "./pages/ComparePage.tsx";
 
 function App() {
   return (
-    <div className="min-h-screen bg-(--color-background)">
+    <div className="h-screen flex flex-col bg-(--color-background)">
       <Navbar />
-      <main className="p-8">
+      <main className="flex-1 min-h-0 p-8 overflow-hidden">
         <Routes>
           <Route path="/" element={<Navigate to="/experiments" replace />} />
           <Route path="/experiments" element={<ExperimentsPage />} />
