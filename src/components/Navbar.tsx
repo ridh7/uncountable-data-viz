@@ -10,7 +10,9 @@ function Navbar() {
   return (
     <nav className="w-full bg-white border-b border-(--color-primary) px-8 h-14 flex items-center">
       <div className="flex-1">
-        <img src={logo} alt="Uncountable" className="h-8 w-8" />
+        <NavLink to="/experiments">
+          <img src={logo} alt="Uncountable" className="h-8 w-8" />
+        </NavLink>
       </div>
       <div className="flex gap-8">
         {NAV_ITEMS.map(({ label, to }) => (
