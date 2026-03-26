@@ -70,7 +70,7 @@ function ColumnSelector({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 w-64 bg-white border border-(--color-border) rounded-lg shadow-lg z-10 p-3">
+        <div className="absolute right-0 top-10 w-64 bg-white border border-(--color-border) rounded-lg shadow-lg z-10 p-3 max-h-80 overflow-y-auto">
           {/*All*/}
           <label className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-(--color-background) cursor-pointer">
             <input
