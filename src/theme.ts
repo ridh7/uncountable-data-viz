@@ -11,4 +11,5 @@ export const theme = {
     textSecondary: "#6B7280",
     muted: "#D1D5DB",
   },
+  chartPalette: ["#4F46E5", "#EA580C", "#0891B2", "#059669"] as const,
 } as const;

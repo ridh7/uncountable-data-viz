@@ -4,6 +4,7 @@ import logo from "../assets/logo.png";
 const NAV_ITEMS = [
   { label: "Experiments", to: "/experiments" },
   { label: "Scatter Plot", to: "/scatter-plot" },
+  { label: "Histograms", to: "/histograms" },
 ];
 
 function Navbar() {

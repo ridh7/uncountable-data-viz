@@ -145,7 +145,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
         <div className="px-4 pt-3 pb-1">
           <p className="text-xs text-(--color-text-secondary) mb-3">
             Select any two properties to visualize their relationship across all
-            experiments
+            experiments.
           </p>
         </div>
         <div className="flex items-center justify-between px-4 pb-3">

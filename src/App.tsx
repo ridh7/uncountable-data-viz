@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.tsx";
 import ExperimentsPage from "./pages/ExperimentsPage.tsx";
 import ScatterPlotPage from "./pages/ScatterPlotPage.tsx";
+import HistogramsPage from "./pages/HistogramsPage.tsx";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Route path="/" element={<Navigate to="/experiments" replace />} />
           <Route path="/experiments" element={<ExperimentsPage />} />
           <Route path="/scatter-plot" element={<ScatterPlotPage />} />
+          <Route path="/histograms" element={<HistogramsPage />} />
         </Routes>
       </main>
     </div>
