@@ -3,6 +3,7 @@ import { parseExperiments } from "../utils/experiment.ts";
 import ExperimentsTable from "../components/experiments/ExperimentsTable.tsx";
 
 function ExperimentsPage() {
+  // Parse once on mount — empty deps means this never recomputes across re-renders
   const experiments = useMemo(() => parseExperiments(), []);
 
   return (

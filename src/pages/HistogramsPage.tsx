@@ -6,10 +6,14 @@ import {
   computeGroupBins,
 } from "../utils/categories.ts";
 import InputHistogram from "../components/histograms/InputHistogram.tsx";
+import Button from "../components/Button.tsx";
 
 function HistogramsPage() {
+  // Parse once on mount — empty deps means this never recomputes across re-renders
   const experiments = useMemo(() => parseExperiments(), []);
+  // Derive column definitions only when experiments change
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
+  // Filter to output columns only — avoids re-filtering on every render
   const outputColumns = useMemo(
     () => columns.filter((c) => c.type === "output"),
     [columns],
@@ -19,6 +23,7 @@ function HistogramsPage() {
   const [rangeMin, setRangeMin] = useState("");
   const [rangeMax, setRangeMax] = useState("");
 
+  // Only re-filter when output key or range changes — not on unrelated re-renders
   const matched = useMemo(() => {
     return experiments.filter((exp) => {
       const val = exp.outputs[outputKey];
@@ -31,6 +36,7 @@ function HistogramsPage() {
     });
   }, [experiments, outputKey, rangeMin, rangeMax]);
 
+  // Recompute bins only when matched experiments change — expensive nested loop
   const groupedBins = useMemo(() => {
     const result = new Map<string, ReturnType<typeof computeGroupBins>>();
     INPUT_GROUPS.forEach((group) =>
@@ -61,42 +67,55 @@ function HistogramsPage() {
           combinations produced experiments in that range. The x-axis shows
           input values, the y-axis shows experiment count.
         </p>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-(--color-text)">
-              Measurement
-            </span>
-            <select
-              value={outputKey}
-              onChange={(e) => setOutputKey(e.target.value)}
-              className={inputClass}
-            >
-              {outputColumns.map((c) => (
-                <option key={c.key} value={c.key}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-(--color-text)">
-              Range
-            </span>
-            <input
-              type="number"
-              placeholder="Min"
-              value={rangeMin}
-              onChange={(e) => setRangeMin(e.target.value)}
-              className={`${inputClass} w-24`}
-            />
-            <span className="text-(--color-text-secondary)">–</span>
-            <input
-              type="number"
-              placeholder="Max"
-              value={rangeMax}
-              onChange={(e) => setRangeMax(e.target.value)}
-              className={`${inputClass} w-24`}
-            />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-(--color-text)">
+                Measurement
+              </span>
+              <select
+                value={outputKey}
+                onChange={(e) => setOutputKey(e.target.value)}
+                className={inputClass}
+              >
+                {outputColumns.map((c) => (
+                  <option key={c.key} value={c.key}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-(--color-text)">
+                Range
+              </span>
+              <input
+                type="number"
+                placeholder="Min"
+                value={rangeMin}
+                onChange={(e) => setRangeMin(e.target.value)}
+                className={`${inputClass} w-24`}
+              />
+              <span className="text-(--color-text-secondary)">–</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={rangeMax}
+                onChange={(e) => setRangeMax(e.target.value)}
+                className={`${inputClass} w-24`}
+              />
+            </div>
+            {(rangeMin || rangeMax) && (
+              <Button
+                onClick={() => {
+                  setRangeMin("");
+                  setRangeMax("");
+                }}
+                variant="secondary"
+              >
+                Clear
+              </Button>
+            )}
           </div>
           <span className="text-sm text-(--color-text-secondary)">
             <span className="font-semibold text-(--color-text)">

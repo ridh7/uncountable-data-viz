@@ -54,7 +54,9 @@ function niceLabel(value: number): string {
   return value % 1 === 0 ? String(value) : value.toFixed(1);
 }
 
-// Returns bins with shared nice x-axis range across all keys
+// Takes { "Polymer 1": [11.2, 0, ...], "Polymer 2": [10.7, ...] }
+// Returns Recharts-ready bin objects: [{ label: "0", "Polymer 1": 1, "Polymer 2": 2 }, ...]
+// Bins use "nice" boundaries (multiples of 1/2/5/10) shared across all keys for a common x-axis
 export function computeGroupBins(
   keyValues: Record<string, number[]>,
 ): Record<string, number | string>[] {

@@ -24,8 +24,7 @@ interface DataPoint {
   experiments: Experiment[];
 }
 
-function CustomDot(props: { cx?: number; cy?: number }) {
-  const { cx, cy } = props;
+function CustomDot({ cx, cy }: { cx?: number; cy?: number }) {
   const [hovered, setHovered] = useState(false);
   return (
     <circle
@@ -88,6 +87,7 @@ function ScatterTooltip({ active, payload, xKey, yKey }: ScatterTooltipProps) {
 }
 
 function ScatterPlot({ experiments }: ScatterPlotProps) {
+  // Derive column definitions and groups — only recompute when experiments change, not on axis selection
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
   const inputColumns = useMemo(
     () => columns.filter((c) => c.type === "input"),
@@ -101,6 +101,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
   const [xKey, setXKey] = useState(inputColumns[0]?.key ?? "");
   const [yKey, setYKey] = useState(outputColumns[0]?.key ?? "");
 
+  // Recompute grouped data points only when experiments or selected axes change
   const data: DataPoint[] = useMemo(() => {
     const grouped = new Map<string, DataPoint>();
     experiments.forEach((exp) => {
@@ -119,6 +120,11 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
 
   const chartRef = useRef<HTMLDivElement>(null);
 
+  // SVG → Blob → Image → Canvas → PNG download
+  // 1. Serialize the Recharts SVG to a string
+  // 2. Create a Blob URL so it can be loaded as an image
+  // 3. Draw the image onto a canvas (scaled for retina displays)
+  // 4. Convert canvas to PNG data URL and trigger download
   const exportPng = useCallback(() => {
     const svg = chartRef.current?.querySelector("svg");
     if (!svg) return;

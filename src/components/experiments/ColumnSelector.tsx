@@ -17,6 +17,7 @@ function ColumnSelector({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  // Derive column groups from props — only recompute when columns change, not on open/close toggle
   const selectableColumns = useMemo(() => columns.filter((c) => c.type !== "meta"), [columns]);
   const inputColumns = useMemo(() => selectableColumns.filter((c) => c.type === "input"), [selectableColumns]);
   const outputColumns = useMemo(() => selectableColumns.filter((c) => c.type === "output"), [selectableColumns]);

@@ -16,6 +16,7 @@ function isRightAligned(col: ColumnDef) {
 }
 
 function ExperimentsTable({ experiments }: ExperimentTableProps) {
+  // Avoid recomputing column definitions on every render — only when experiments change
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(() =>
@@ -45,6 +46,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
     setPage(1);
   }
 
+  // Only re-filter when filter inputs change — not on sort, page, or column toggle
   const filtered = useMemo(() => {
     return experiments.filter((exp) => {
       if (!filterColumn) return true;
@@ -58,6 +60,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
     });
   }, [experiments, filterColumn, filterMin, filterMax]);
 
+  // Only re-sort when filtered data or sort params change — not on page or column toggle
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
       const va = sortKey === "date" ? a.date.getTime() : getCellValue(a, sortKey);
@@ -70,7 +73,9 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
 
   const totalPages = Math.ceil(sorted.length / pageSize);
   const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
+  // Convert array to Set for O(1) column lookups instead of O(n) includes()
   const visibleSet = useMemo(() => new Set(visibleColumns), [visibleColumns]);
+  // Only recompute when columns or visibility changes — not on sort or page
   const displayedColumns = useMemo(
     () => columns.filter((c) => visibleSet.has(c.key)),
     [columns, visibleSet],
