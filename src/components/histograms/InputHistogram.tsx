@@ -2,6 +2,34 @@ import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { theme } from "../../theme.ts";
 
+interface TooltipPayloadEntry {
+  dataKey: string;
+  value: number;
+  fill: string;
+}
+
+interface TooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadEntry[];
+  hoveredKey: string | null;
+}
+
+function HistogramTooltip({ active, payload, hoveredKey }: TooltipProps) {
+  if (!active || !payload?.length || !hoveredKey) return null;
+  const entry = payload.find((p) => p.dataKey === hoveredKey) ?? payload[0];
+  if (!entry) return null;
+  return (
+    <div className="bg-white border border-(--color-border) rounded px-2 py-1.5 shadow text-xs">
+      <p>
+        {entry.dataKey}:{" "}
+        <span className="font-semibold" style={{ color: entry.fill }}>
+          {entry.value}
+        </span>
+      </p>
+    </div>
+  );
+}
+
 interface InputHistogramProps {
   keys: string[];
   bins: Record<string, number | string>[];
@@ -9,24 +37,6 @@ interface InputHistogramProps {
 
 function InputHistogram({ keys, bins }: InputHistogramProps) {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
-
-  function CustomTooltip({ active, payload }: any) {
-    if (!active || !payload?.length || !hoveredKey) return null;
-    const entry = hoveredKey
-      ? payload.find((p: any) => p.dataKey === hoveredKey)
-      : payload[0];
-    if (!entry) return null;
-    return (
-      <div className="bg-white border border-(--color-border) rounded px-2 py-1.5 shadow text-xs">
-        <p>
-          {entry.dataKey}:{" "}
-          <span className="font-semibold" style={{ color: entry.fill }}>
-            {entry.value}
-          </span>
-        </p>
-      </div>
-    );
-  }
 
   return (
     <ResponsiveContainer width="100%" height={160}>
@@ -50,7 +60,7 @@ function InputHistogram({ keys, bins }: InputHistogramProps) {
           width={40}
         />
         <Tooltip
-          content={<CustomTooltip />}
+          content={<HistogramTooltip hoveredKey={hoveredKey} />}
           cursor={{ fill: theme.colors.background }}
           isAnimationActive={false}
         />

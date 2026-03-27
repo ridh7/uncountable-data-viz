@@ -22,7 +22,7 @@ interface DataPoint {
   experiments: Experiment[];
 }
 
-function CustomDot(props: any) {
+function CustomDot(props: { cx?: number; cy?: number }) {
   const { cx, cy } = props;
   const [hovered, setHovered] = useState(false);
   return (
@@ -38,6 +38,50 @@ function CustomDot(props: any) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     />
+  );
+}
+
+interface ScatterTooltipProps {
+  active?: boolean;
+  payload?: { payload: DataPoint }[];
+  xKey: string;
+  yKey: string;
+}
+
+function ScatterTooltip({ active, payload, xKey, yKey }: ScatterTooltipProps) {
+  if (!active || !payload?.length) return null;
+  const point = payload[0].payload;
+  const multiple = point.experiments.length > 1;
+  return (
+    <div className="bg-white border border-(--color-border) rounded-lg px-3 py-2.5 shadow-lg text-sm min-w-48">
+      {multiple && (
+        <p className="font-bold text-(--color-text) mb-1">
+          {point.experiments.length} experiments at this position
+        </p>
+      )}
+      {multiple && <div className="border-t border-(--color-border) mb-2" />}
+      {point.experiments.map((exp) => (
+        <div key={exp.key} className={multiple ? "mb-1" : ""}>
+          <p className="font-bold text-(--color-text)">{exp.id}</p>
+          <p className="text-(--color-text-secondary) text-xs">
+            {exp.date.toLocaleDateString()}
+          </p>
+        </div>
+      ))}
+      <div
+        className={`text-(--color-text-secondary) text-xs ${multiple ? "border-t border-(--color-border) mt-2 pt-2" : "mt-2"}`}
+      >
+        {xKey}:{" "}
+        <span className="font-semibold text-(--color-text)">
+          {point.x.toFixed(2)}
+        </span>
+        <span className="mx-2">·</span>
+        {yKey}:{" "}
+        <span className="font-semibold text-(--color-text)">
+          {point.y.toFixed(2)}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -67,43 +111,6 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
     });
     return Array.from(grouped.values());
   }, [experiments, xKey, yKey]);
-
-  function CustomTooltip({ active, payload }: any) {
-    if (!active || !payload?.length) return null;
-    const point = payload[0].payload as DataPoint;
-    const multiple = point.experiments.length > 1;
-    return (
-      <div className="bg-white border border-(--color-border) rounded-lg px-3 py-2.5 shadow-lg text-sm min-w-48">
-        {multiple && (
-          <p className="font-bold text-(--color-text) mb-1">
-            {point.experiments.length} experiments at this position
-          </p>
-        )}
-        {multiple && <div className="border-t border-(--color-border) mb-2" />}
-        {point.experiments.map((exp) => (
-          <div key={exp.key} className={multiple ? "mb-1" : ""}>
-            <p className="font-bold text-(--color-text)">{exp.id}</p>
-            <p className="text-(--color-text-secondary) text-xs">
-              {exp.date.toLocaleDateString()}
-            </p>
-          </div>
-        ))}
-        <div
-          className={`text-(--color-text-secondary) text-xs ${multiple ? "border-t border-(--color-border) mt-2 pt-2" : "mt-2"}`}
-        >
-          {xKey}:{" "}
-          <span className="font-semibold text-(--color-text)">
-            {point.x.toFixed(2)}
-          </span>
-          <span className="mx-2">·</span>
-          {yKey}:{" "}
-          <span className="font-semibold text-(--color-text)">
-            {point.y.toFixed(2)}
-          </span>
-        </div>
-      </div>
-    );
-  }
 
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -263,7 +270,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
               axisLine={{ stroke: theme.colors.border }}
             />
             <Tooltip
-              content={<CustomTooltip />}
+              content={<ScatterTooltip xKey={xKey} yKey={yKey} />}
               cursor={{ strokeDasharray: "3 3" }}
               isAnimationActive={false}
             />
