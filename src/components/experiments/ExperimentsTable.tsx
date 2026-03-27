@@ -64,7 +64,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
       const vb = sortKey === "date" ? b.date.getTime() : getCellValue(b, sortKey);
       if (va < vb) return sortAsc ? -1 : 1;
       if (va > vb) return sortAsc ? 1 : -1;
-      return 0;
+      return a.id.localeCompare(b.id);
     });
   }, [filtered, sortKey, sortAsc]);
 
