@@ -34,6 +34,12 @@ export const INPUT_GROUPS: InputGroup[] = [
   { label: "Oven Temperature", keys: ["Oven Temperature"] },
 ];
 
+export const HISTOGRAM_ROWS: InputGroup[][] = [
+  [INPUT_GROUPS[0], INPUT_GROUPS[1]],
+  [INPUT_GROUPS[2], INPUT_GROUPS[3], INPUT_GROUPS[4]],
+  [INPUT_GROUPS[5], INPUT_GROUPS[6], INPUT_GROUPS[7]],
+];
+
 // keyValues: { "Polymer 1": [v1, v2, ...], "Polymer 2": [...], ... }
 function niceStep(roughStep: number): number {
   const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));

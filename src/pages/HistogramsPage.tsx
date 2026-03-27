@@ -1,13 +1,13 @@
 import { useState, useMemo } from "react";
 import { parseExperiments } from "../utils/experiment.ts";
 import { getColumnDefs } from "../utils/experiment.ts";
-import { INPUT_GROUPS, computeGroupBins } from "../utils/categories.ts";
+import { INPUT_GROUPS, HISTOGRAM_ROWS, computeGroupBins } from "../utils/categories.ts";
 import InputHistogram from "../components/histograms/InputHistogram.tsx";
 
 function HistogramsPage() {
   const experiments = useMemo(() => parseExperiments(), []);
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
-  const outputColumns = columns.filter((c) => c.type === "output");
+  const outputColumns = useMemo(() => columns.filter((c) => c.type === "output"), [columns]);
 
   const [outputKey, setOutputKey] = useState(outputColumns[0]?.key ?? "");
   const [rangeMin, setRangeMin] = useState("");
@@ -17,11 +17,28 @@ function HistogramsPage() {
     return experiments.filter((exp) => {
       const val = exp.outputs[outputKey];
       if (val === undefined) return false;
-      if (rangeMin && val < parseFloat(rangeMin)) return false;
-      if (rangeMax && val > parseFloat(rangeMax)) return false;
+      const min = parseFloat(rangeMin);
+      const max = parseFloat(rangeMax);
+      if (rangeMin && !isNaN(min) && val < min) return false;
+      if (rangeMax && !isNaN(max) && val > max) return false;
       return true;
     });
   }, [experiments, outputKey, rangeMin, rangeMax]);
+
+  const groupedBins = useMemo(
+    () =>
+      INPUT_GROUPS.map((group) =>
+        computeGroupBins(
+          Object.fromEntries(
+            group.keys.map((k) => [
+              k,
+              matched.flatMap((e) => (k in e.inputs ? [e.inputs[k]] : [])),
+            ])
+          )
+        )
+      ),
+    [matched]
+  );
 
   const inputClass =
     "text-sm border border-(--color-border) rounded-md px-3 h-9 text-(--color-text) outline-none focus:border-(--color-primary) bg-white";
@@ -80,30 +97,25 @@ function HistogramsPage() {
       </div>
 
       {/* Histogram rows */}
-      {[
-        [INPUT_GROUPS[0], INPUT_GROUPS[1]],
-        [INPUT_GROUPS[2], INPUT_GROUPS[3], INPUT_GROUPS[4]],
-        [INPUT_GROUPS[5], INPUT_GROUPS[6], INPUT_GROUPS[7]],
-      ].map((row, ri) => (
-        <div key={ri} className="flex gap-4">
-          {row.map((group) => (
-            <div
-              key={group.label}
-              className="flex-1 bg-white border border-(--color-border) rounded-lg p-4"
-            >
-              <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mb-3">
-                {group.label}
-              </h3>
-              <InputHistogram
-                keys={group.keys}
-                bins={computeGroupBins(
-                  Object.fromEntries(
-                    group.keys.map((k) => [k, matched.map((e) => e.inputs[k] ?? 0)])
-                  )
-                )}
-              />
-            </div>
-          ))}
+      {HISTOGRAM_ROWS.map((row) => (
+        <div key={row.map((g) => g.label).join(",")} className="flex gap-4">
+          {row.map((group) => {
+            const groupIndex = INPUT_GROUPS.indexOf(group);
+            return (
+              <div
+                key={group.label}
+                className="flex-1 bg-white border border-(--color-border) rounded-lg p-4"
+              >
+                <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mb-3">
+                  {group.label}
+                </h3>
+                <InputHistogram
+                  keys={group.keys}
+                  bins={groupedBins[groupIndex]}
+                />
+              </div>
+            );
+          })}
         </div>
       ))}
       <div className="pb-4" />

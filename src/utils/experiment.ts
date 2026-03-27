@@ -21,26 +21,19 @@ export function parseExperiments(): Experiment[] {
 
 export function getColumnDefs(experiments: Experiment[]): ColumnDef[] {
   if (experiments.length === 0) return [];
-  const first = experiments[0];
   const meta: ColumnDef[] = [
-    {
-      key: "id",
-      label: "Experiment",
-      type: "meta",
-    },
+    { key: "id", label: "Experiment", type: "meta" },
     { key: "date", label: "Date", type: "meta" },
   ];
-  const inputs: ColumnDef[] = Object.keys(first.inputs).map((k) => ({
-    key: k,
-    label: k,
-    type: "input",
-  }));
-  const outputs: ColumnDef[] = Object.keys(first.outputs).map((k) => ({
-    key: k,
-    label: k,
-    type: "output",
-  }));
+  const inputKeys = [...new Set(experiments.flatMap((e) => Object.keys(e.inputs)))];
+  const outputKeys = [...new Set(experiments.flatMap((e) => Object.keys(e.outputs)))];
+  const inputs: ColumnDef[] = inputKeys.map((k) => ({ key: k, label: k, type: "input" }));
+  const outputs: ColumnDef[] = outputKeys.map((k) => ({ key: k, label: k, type: "output" }));
   return [...meta, ...inputs, ...outputs];
+}
+
+export function getExperimentValue(exp: Experiment, key: string): number {
+  return exp.inputs[key] ?? exp.outputs[key] ?? 0;
 }
 
 export function getCellValue(

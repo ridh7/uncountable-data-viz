@@ -1,3 +1,5 @@
+// camelCase keys are injected as kebab-case CSS variables in main.tsx
+// e.g. textSecondary → --color-text-secondary
 export const theme = {
   colors: {
     primary: "#2328AF",

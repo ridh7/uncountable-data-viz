@@ -11,7 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { Experiment } from "../../types/experiment.ts";
-import { getColumnDefs } from "../../utils/experiment.ts";
+import { getColumnDefs, getExperimentValue } from "../../utils/experiment.ts";
 import { theme } from "../../theme.ts";
 
 interface ScatterPlotProps {
@@ -89,21 +89,23 @@ function ScatterTooltip({ active, payload, xKey, yKey }: ScatterTooltipProps) {
 
 function ScatterPlot({ experiments }: ScatterPlotProps) {
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
-  const inputColumns = columns.filter((c) => c.type === "input");
-  const outputColumns = columns.filter((c) => c.type === "output");
+  const inputColumns = useMemo(
+    () => columns.filter((c) => c.type === "input"),
+    [columns],
+  );
+  const outputColumns = useMemo(
+    () => columns.filter((c) => c.type === "output"),
+    [columns],
+  );
 
   const [xKey, setXKey] = useState(inputColumns[0]?.key ?? "");
   const [yKey, setYKey] = useState(outputColumns[0]?.key ?? "");
 
-  function getValue(exp: Experiment, key: string): number {
-    return exp.inputs[key] ?? exp.outputs[key] ?? 0;
-  }
-
   const data: DataPoint[] = useMemo(() => {
     const grouped = new Map<string, DataPoint>();
     experiments.forEach((exp) => {
-      const x = getValue(exp, xKey);
-      const y = getValue(exp, yKey);
+      const x = getExperimentValue(exp, xKey);
+      const y = getExperimentValue(exp, yKey);
       const key = `${x},${y}`;
       if (grouped.has(key)) {
         grouped.get(key)!.experiments.push(exp);
@@ -126,6 +128,10 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
     });
     const url = URL.createObjectURL(blob);
     const img = new Image();
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      console.error("Failed to load SVG for PNG export");
+    };
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const scale = window.devicePixelRatio || 1;
@@ -160,7 +166,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
         <div className="flex items-center justify-between px-4 pb-3">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-(--color-text-secondary)">
+              <span className="text-sm font-semibold text-(--color-text)">
                 X-Axis
               </span>
               <select
@@ -185,7 +191,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-(--color-text-secondary)">
+              <span className="text-sm font-semibold text-(--color-text)">
                 Y-Axis
               </span>
               <select

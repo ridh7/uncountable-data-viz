@@ -49,16 +49,18 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
     return experiments.filter((exp) => {
       if (!filterColumn) return true;
       const val = exp.outputs[filterColumn] ?? exp.inputs[filterColumn];
-      if (filterMin && val < parseFloat(filterMin)) return false;
-      if (filterMax && val > parseFloat(filterMax)) return false;
+      const min = parseFloat(filterMin);
+      const max = parseFloat(filterMax);
+      if (filterMin && !isNaN(min) && val < min) return false;
+      if (filterMax && !isNaN(max) && val > max) return false;
       return true;
     });
   }, [experiments, filterColumn, filterMin, filterMax]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
-      const va = getCellValue(a, sortKey);
-      const vb = getCellValue(b, sortKey);
+      const va = sortKey === "date" ? a.date.getTime() : getCellValue(a, sortKey);
+      const vb = sortKey === "date" ? b.date.getTime() : getCellValue(b, sortKey);
       if (va < vb) return sortAsc ? -1 : 1;
       if (va > vb) return sortAsc ? 1 : -1;
       return 0;
@@ -174,9 +176,9 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
         </div>
         <div className="flex items-center gap-4">
           <span>
-            Showing {(page - 1) * pageSize + 1}–
-            {Math.min(page * pageSize, filtered.length)} of {filtered.length}{" "}
-            experiments
+            {filtered.length === 0
+              ? "No experiments match"
+              : `Showing ${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, filtered.length)} of ${filtered.length} experiments`}
           </span>
           <div className="flex gap-2">
             <button
@@ -191,7 +193,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
+              disabled={page >= totalPages || totalPages === 0}
               className="px-3 py-1 rounded border border-(--color-border) disabled:opacity-30 hover:border-(--color-primary) hover:text-(--color-primary) transition-colors"
             >
               →

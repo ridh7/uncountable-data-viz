@@ -7,7 +7,10 @@ import { BrowserRouter } from "react-router-dom";
 
 const root = document.documentElement;
 Object.entries(theme.colors).forEach(([key, value]) => {
-  root.style.setProperty(`--color-${key}`, value);
+  root.style.setProperty(
+    `--color-${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`,
+    value,
+  );
 });
 
 createRoot(document.getElementById("root")!).render(
