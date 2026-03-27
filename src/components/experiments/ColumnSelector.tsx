@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import type { ColumnDef } from "../../types/experiment.ts";
 import Button from "../Button.tsx";
 import { SettingsIcon } from "../icons.tsx";
@@ -17,9 +17,9 @@ function ColumnSelector({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const selectableColumns = columns.filter((c) => c.type !== "meta");
-  const inputColumns = selectableColumns.filter((c) => c.type === "input");
-  const outputColumns = selectableColumns.filter((c) => c.type === "output");
+  const selectableColumns = useMemo(() => columns.filter((c) => c.type !== "meta"), [columns]);
+  const inputColumns = useMemo(() => selectableColumns.filter((c) => c.type === "input"), [selectableColumns]);
+  const outputColumns = useMemo(() => selectableColumns.filter((c) => c.type === "output"), [selectableColumns]);
 
   const allSelected = selectableColumns.every((c) =>
     visibleColumns.includes(c.key),

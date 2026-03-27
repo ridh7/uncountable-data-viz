@@ -32,8 +32,8 @@ export function getColumnDefs(experiments: Experiment[]): ColumnDef[] {
   return [...meta, ...inputs, ...outputs];
 }
 
-export function getExperimentValue(exp: Experiment, key: string): number {
-  return exp.inputs[key] ?? exp.outputs[key] ?? 0;
+export function getExperimentValue(exp: Experiment, key: string): number | null {
+  return exp.inputs[key] ?? exp.outputs[key] ?? null;
 }
 
 export function getCellValue(

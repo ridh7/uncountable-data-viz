@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { parseExperiments } from "../utils/experiment";
-import ScatterPlot from "../components/scatterplot/ScatterPlot";
+import { parseExperiments } from "../utils/experiment.ts";
+import ScatterPlot from "../components/scatterplot/ScatterPlot.tsx";
 
 function ScatterPlotPage() {
   const experiments = useMemo(() => parseExperiments(), []);

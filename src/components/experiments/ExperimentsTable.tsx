@@ -49,6 +49,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
     return experiments.filter((exp) => {
       if (!filterColumn) return true;
       const val = exp.outputs[filterColumn] ?? exp.inputs[filterColumn];
+      if (val === undefined) return false;
       const min = parseFloat(filterMin);
       const max = parseFloat(filterMax);
       if (filterMin && !isNaN(min) && val < min) return false;
@@ -69,8 +70,10 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
 
   const totalPages = Math.ceil(sorted.length / pageSize);
   const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
-  const displayedColumns = columns.filter((c) =>
-    visibleColumns.includes(c.key),
+  const visibleSet = useMemo(() => new Set(visibleColumns), [visibleColumns]);
+  const displayedColumns = useMemo(
+    () => columns.filter((c) => visibleSet.has(c.key)),
+    [columns, visibleSet],
   );
 
   return (
@@ -189,7 +192,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
               ←
             </button>
             <span className="px-2 py-1">
-              {page} / {totalPages}
+              {totalPages === 0 ? "0 / 0" : `${page} / ${totalPages}`}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

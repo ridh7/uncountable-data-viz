@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
-import { parseExperiments } from "../utils/experiment.ts";
-import { getColumnDefs } from "../utils/experiment.ts";
+import { parseExperiments, getColumnDefs } from "../utils/experiment.ts";
 import { INPUT_GROUPS, HISTOGRAM_ROWS, computeGroupBins } from "../utils/categories.ts";
 import InputHistogram from "../components/histograms/InputHistogram.tsx";
 
@@ -25,9 +24,11 @@ function HistogramsPage() {
     });
   }, [experiments, outputKey, rangeMin, rangeMax]);
 
-  const groupedBins = useMemo(
-    () =>
-      INPUT_GROUPS.map((group) =>
+  const groupedBins = useMemo(() => {
+    const result = new Map<string, ReturnType<typeof computeGroupBins>>();
+    INPUT_GROUPS.forEach((group) =>
+      result.set(
+        group.label,
         computeGroupBins(
           Object.fromEntries(
             group.keys.map((k) => [
@@ -36,9 +37,10 @@ function HistogramsPage() {
             ])
           )
         )
-      ),
-    [matched]
-  );
+      )
+    );
+    return result;
+  }, [matched]);
 
   const inputClass =
     "text-sm border border-(--color-border) rounded-md px-3 h-9 text-(--color-text) outline-none focus:border-(--color-primary) bg-white";
@@ -51,57 +53,55 @@ function HistogramsPage() {
           Select an output measurement and a value range to see which input combinations produced experiments in that range. The x-axis shows input values, the y-axis shows experiment count.
         </p>
         <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-(--color-text-secondary)">
-            Measurement
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-(--color-text-secondary)">
+              Measurement
+            </span>
+            <select
+              value={outputKey}
+              onChange={(e) => setOutputKey(e.target.value)}
+              className={inputClass}
+            >
+              {outputColumns.map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-(--color-text-secondary)">
+              Range
+            </span>
+            <input
+              type="number"
+              placeholder="Min"
+              value={rangeMin}
+              onChange={(e) => setRangeMin(e.target.value)}
+              className={`${inputClass} w-24`}
+            />
+            <span className="text-(--color-text-secondary)">–</span>
+            <input
+              type="number"
+              placeholder="Max"
+              value={rangeMax}
+              onChange={(e) => setRangeMax(e.target.value)}
+              className={`${inputClass} w-24`}
+            />
+          </div>
+          <span className="text-sm text-(--color-text-secondary)">
+            <span className="font-semibold text-(--color-text)">
+              {matched.length}
+            </span>{" "}
+            / {experiments.length} experiments match
           </span>
-          <select
-            value={outputKey}
-            onChange={(e) => setOutputKey(e.target.value)}
-            className={inputClass}
-          >
-            {outputColumns.map((c) => (
-              <option key={c.key} value={c.key}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-(--color-text-secondary)">
-            Range
-          </span>
-          <input
-            type="number"
-            placeholder="Min"
-            value={rangeMin}
-            onChange={(e) => setRangeMin(e.target.value)}
-            className={`${inputClass} w-24`}
-          />
-          <span className="text-(--color-text-secondary)">–</span>
-          <input
-            type="number"
-            placeholder="Max"
-            value={rangeMax}
-            onChange={(e) => setRangeMax(e.target.value)}
-            className={`${inputClass} w-24`}
-          />
-        </div>
-        <span className="text-sm text-(--color-text-secondary)">
-          <span className="font-semibold text-(--color-text)">
-            {matched.length}
-          </span>{" "}
-          / {experiments.length} experiments match
-        </span>
         </div>
       </div>
 
       {/* Histogram rows */}
       {HISTOGRAM_ROWS.map((row) => (
         <div key={row.map((g) => g.label).join(",")} className="flex gap-4">
-          {row.map((group) => {
-            const groupIndex = INPUT_GROUPS.indexOf(group);
-            return (
+          {row.map((group) => (
               <div
                 key={group.label}
                 className="flex-1 bg-white border border-(--color-border) rounded-lg p-4"
@@ -111,11 +111,10 @@ function HistogramsPage() {
                 </h3>
                 <InputHistogram
                   keys={group.keys}
-                  bins={groupedBins[groupIndex]}
+                  bins={groupedBins.get(group.label)!}
                 />
               </div>
-            );
-          })}
+          ))}
         </div>
       ))}
       <div className="pb-4" />

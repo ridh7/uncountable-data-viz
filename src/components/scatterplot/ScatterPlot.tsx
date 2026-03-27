@@ -106,6 +106,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
     experiments.forEach((exp) => {
       const x = getExperimentValue(exp, xKey);
       const y = getExperimentValue(exp, yKey);
+      if (x === null || y === null) return;
       const key = `${x},${y}`;
       if (grouped.has(key)) {
         grouped.get(key)!.experiments.push(exp);
@@ -265,7 +266,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
               cursor={{ strokeDasharray: "3 3" }}
               isAnimationActive={false}
             />
-            <Scatter data={data} shape={<CustomDot />} />
+            <Scatter data={data} shape={CustomDot} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
