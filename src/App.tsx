@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="h-screen flex flex-col bg-(--color-background)">
       <Navbar />
-      <main className="flex-1 min-h-0 p-8 overflow-hidden">
+      <main className="flex-1 p-8 overflow-hidden">
         <Routes>
           <Route path="/" element={<Navigate to="/experiments" replace />} />
           <Route path="/experiments" element={<ExperimentsPage />} />
