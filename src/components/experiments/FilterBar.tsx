@@ -1,4 +1,5 @@
 import type { ColumnDef } from "../../types/experiment.ts";
+import Button from "../Button.tsx";
 
 interface FilterBarProps {
   columns: ColumnDef[];
@@ -65,12 +66,9 @@ function FilterBar({
         className="text-sm border border-(--color-border) rounded-md px-3 py-1.5 h-9 w-24 text-(--color-text) outline-none focus:border-(--color-primary)"
       />
       {hasFilter && (
-        <button
-          onClick={onClear}
-          className="text-sm text-(--color-text-secondary) hover:text-(--color-primary) transition-colors"
-        >
-          x Clear
-        </button>
+        <Button onClick={onClear} variant="secondary">
+          Clear
+        </Button>
       )}
     </div>
   );

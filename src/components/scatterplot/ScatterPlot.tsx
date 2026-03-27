@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import Button from "../Button.tsx";
 import {
   ScatterChart,
   Scatter,
@@ -208,10 +209,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
               </select>
             </div>
           </div>
-          <button
-            onClick={exportPng}
-            className="flex items-center gap-1.5 text-sm font-medium rounded-md px-3 h-9 text-white bg-(--color-primary) hover:opacity-90 active:opacity-80 transition-opacity"
-          >
+          <Button onClick={exportPng}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -227,7 +225,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
 
