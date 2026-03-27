@@ -11,6 +11,7 @@ export const theme = {
     border: "#E5E7EB",
     text: "#1A1A2E",
     textSecondary: "#6B7280",
+    onPrimary: "#FFFFFF",
     muted: "#D1D5DB",
   },
   chartPalette: ["#4F46E5", "#EA580C", "#0891B2", "#059669"] as const,

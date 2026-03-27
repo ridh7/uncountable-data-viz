@@ -78,7 +78,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
 
   return (
     <div className="h-full flex flex-col gap-4">
-      <div className="bg-white border border-(--color-border) rounded-t-lg border-b-0">
+      <div className="bg-(--color-surface) border border-(--color-border) rounded-t-lg border-b-0">
         <div className="flex items-center justify-between px-4 py-3">
           <FilterBar
             columns={columns}
@@ -106,7 +106,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
           />
         </div>
       </div>
-      <div className="bg-white border border-(--color-border) rounded-b-lg overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)] -mt-4">
+      <div className="bg-(--color-surface) border border-(--color-border) rounded-b-lg overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)] -mt-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-(--color-border) bg-(--color-background) sticky top-0">
@@ -171,7 +171,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
                 setPageSize(size);
                 setPage(1);
               }}
-              className={`px-2 py-0.5 rounded ${pageSize === size ? "bg-(--color-primary) text-white font-semibold" : "hover:text-(--color-primary)"}`}
+              className={`px-2 py-0.5 rounded ${pageSize === size ? "bg-(--color-primary) text-(--color-on-primary) font-semibold" : "hover:text-(--color-primary)"}`}
             >
               {size}
             </button>

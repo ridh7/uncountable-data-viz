@@ -19,7 +19,7 @@ function HistogramTooltip({ active, payload, hoveredKey }: TooltipProps) {
   const entry = payload.find((p) => p.dataKey === hoveredKey) ?? payload[0];
   if (!entry) return null;
   return (
-    <div className="bg-white border border-(--color-border) rounded px-2 py-1.5 shadow text-xs">
+    <div className="bg-(--color-surface) border border-(--color-border) rounded px-2 py-1.5 shadow text-xs">
       <p>
         {entry.dataKey}:{" "}
         <span className="font-semibold" style={{ color: entry.fill }}>

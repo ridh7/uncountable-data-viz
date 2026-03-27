@@ -9,7 +9,7 @@ const NAV_ITEMS = [
 
 function Navbar() {
   return (
-    <nav className="w-full bg-white border-b border-(--color-primary) px-8 h-14 flex items-center">
+    <nav className="w-full bg-(--color-surface) border-b border-(--color-primary) px-8 h-14 flex items-center">
       <div className="flex-1">
         <NavLink to="/experiments">
           <img src={logo} alt="Uncountable" className="h-8 w-8" />

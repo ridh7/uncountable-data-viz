@@ -43,12 +43,12 @@ function HistogramsPage() {
   }, [matched]);
 
   const inputClass =
-    "text-sm border border-(--color-border) rounded-md px-3 h-9 text-(--color-text) outline-none focus:border-(--color-primary) bg-white";
+    "text-sm border border-(--color-border) rounded-md px-3 h-9 text-(--color-text) outline-none focus:border-(--color-primary) bg-(--color-surface)";
 
   return (
     <div className="h-full flex flex-col gap-4 overflow-y-auto">
       {/* Toolbar */}
-      <div className="bg-white border border-(--color-border) rounded-lg px-4 pt-3 pb-3 shrink-0 sticky top-0 z-10">
+      <div className="bg-(--color-surface) border border-(--color-border) rounded-lg px-4 pt-3 pb-3 shrink-0 sticky top-0 z-10">
         <p className="text-xs text-(--color-text-secondary) mb-3">
           Select an output measurement and a value range to see which input combinations produced experiments in that range. The x-axis shows input values, the y-axis shows experiment count.
         </p>
@@ -104,7 +104,7 @@ function HistogramsPage() {
           {row.map((group) => (
               <div
                 key={group.label}
-                className="flex-1 bg-white border border-(--color-border) rounded-lg p-4"
+                className="flex-1 bg-(--color-surface) border border-(--color-border) rounded-lg p-4"
               >
                 <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mb-3">
                   {group.label}

@@ -55,7 +55,7 @@ function ScatterTooltip({ active, payload, xKey, yKey }: ScatterTooltipProps) {
   const point = payload[0].payload;
   const multiple = point.experiments.length > 1;
   return (
-    <div className="bg-white border border-(--color-border) rounded-lg px-3 py-2.5 shadow-lg text-sm min-w-48">
+    <div className="bg-(--color-surface) border border-(--color-border) rounded-lg px-3 py-2.5 shadow-lg text-sm min-w-48">
       {multiple && (
         <p className="font-bold text-(--color-text) mb-1">
           {point.experiments.length} experiments at this position
@@ -153,11 +153,11 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
   }, [xKey, yKey]);
 
   const selectClass =
-    "text-sm border border-(--color-border) rounded-md px-3 h-9 text-(--color-text) outline-none focus:border-(--color-primary) bg-white";
+    "text-sm border border-(--color-border) rounded-md px-3 h-9 text-(--color-text) outline-none focus:border-(--color-primary) bg-(--color-surface)";
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-white border border-(--color-border) rounded-t-lg border-b border-b-(--color-border)">
+      <div className="bg-(--color-surface) border border-(--color-border) rounded-t-lg border-b border-b-(--color-border)">
         <div className="px-4 pt-3 pb-1">
           <p className="text-xs text-(--color-text-secondary) mb-3">
             Select any two properties to visualize their relationship across all
@@ -225,7 +225,7 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
 
       <div
         ref={chartRef}
-        className="flex-1 min-h-0 bg-white border border-(--color-border) rounded-b-lg p-4 border-t-0"
+        className="flex-1 min-h-0 bg-(--color-surface) border border-(--color-border) rounded-b-lg p-4 border-t-0"
       >
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 20 }}>
