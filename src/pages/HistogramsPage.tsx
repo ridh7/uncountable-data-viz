@@ -1,12 +1,19 @@
 import { useState, useMemo } from "react";
 import { parseExperiments, getColumnDefs } from "../utils/experiment.ts";
-import { INPUT_GROUPS, HISTOGRAM_ROWS, computeGroupBins } from "../utils/categories.ts";
+import {
+  INPUT_GROUPS,
+  HISTOGRAM_ROWS,
+  computeGroupBins,
+} from "../utils/categories.ts";
 import InputHistogram from "../components/histograms/InputHistogram.tsx";
 
 function HistogramsPage() {
   const experiments = useMemo(() => parseExperiments(), []);
   const columns = useMemo(() => getColumnDefs(experiments), [experiments]);
-  const outputColumns = useMemo(() => columns.filter((c) => c.type === "output"), [columns]);
+  const outputColumns = useMemo(
+    () => columns.filter((c) => c.type === "output"),
+    [columns],
+  );
 
   const [outputKey, setOutputKey] = useState(outputColumns[0]?.key ?? "");
   const [rangeMin, setRangeMin] = useState("");
@@ -34,10 +41,10 @@ function HistogramsPage() {
             group.keys.map((k) => [
               k,
               matched.flatMap((e) => (k in e.inputs ? [e.inputs[k]] : [])),
-            ])
-          )
-        )
-      )
+            ]),
+          ),
+        ),
+      ),
     );
     return result;
   }, [matched]);
@@ -50,11 +57,13 @@ function HistogramsPage() {
       {/* Toolbar */}
       <div className="bg-(--color-surface) border border-(--color-border) rounded-lg px-4 pt-3 pb-3 shrink-0 sticky top-0 z-10">
         <p className="text-xs text-(--color-text-secondary) mb-3">
-          Select an output measurement and a value range to see which input combinations produced experiments in that range. The x-axis shows input values, the y-axis shows experiment count.
+          Select an output measurement and a value range to see which input
+          combinations produced experiments in that range. The x-axis shows
+          input values, the y-axis shows experiment count.
         </p>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-(--color-text-secondary)">
+            <span className="text-sm font-semibold text-(--color-text)">
               Measurement
             </span>
             <select
@@ -70,7 +79,7 @@ function HistogramsPage() {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-(--color-text-secondary)">
+            <span className="text-sm font-semibold text-(--color-text)">
               Range
             </span>
             <input
@@ -102,18 +111,18 @@ function HistogramsPage() {
       {HISTOGRAM_ROWS.map((row) => (
         <div key={row.map((g) => g.label).join(",")} className="flex gap-4">
           {row.map((group) => (
-              <div
-                key={group.label}
-                className="flex-1 bg-(--color-surface) border border-(--color-border) rounded-lg p-4"
-              >
-                <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mb-3">
-                  {group.label}
-                </h3>
-                <InputHistogram
-                  keys={group.keys}
-                  bins={groupedBins.get(group.label)!}
-                />
-              </div>
+            <div
+              key={group.label}
+              className="flex-1 bg-(--color-surface) border border-(--color-border) rounded-lg p-4"
+            >
+              <h3 className="text-xs font-semibold text-(--color-text-secondary) uppercase tracking-wide mb-3">
+                {group.label}
+              </h3>
+              <InputHistogram
+                keys={group.keys}
+                bins={groupedBins.get(group.label)!}
+              />
+            </div>
           ))}
         </div>
       ))}
