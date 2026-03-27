@@ -54,29 +54,33 @@ function niceLabel(value: number): string {
   return value % 1 === 0 ? String(value) : value.toFixed(1);
 }
 
-// Takes { "Polymer 1": [11.2, 0, ...], "Polymer 2": [10.7, ...] }
-// Returns Recharts-ready bin objects: [{ label: "0", "Polymer 1": 1, "Polymer 2": 2 }, ...]
-// Bins use "nice" boundaries (multiples of 1/2/5/10) shared across all keys for a common x-axis
 export function computeGroupBins(
   keyValues: Record<string, number[]>,
 ): Record<string, number | string>[] {
+  // Flatten all values across keys to find the global range
   const allValues = Object.values(keyValues).flat();
   if (!allValues.length) return [];
 
   const rawMin = Math.min(...allValues);
   const rawMax = Math.max(...allValues);
 
+  // Edge case: all values are identical — return a single bin with total counts
+  // (avoids division by zero when computing step size)
   if (rawMin === rawMax) {
     const bin: Record<string, number | string> = { label: niceLabel(rawMin) };
     Object.entries(keyValues).forEach(([k, vals]) => { bin[k] = vals.length; });
     return [bin];
   }
 
+  // Compute "nice" step and align boundaries to clean multiples
+  // e.g., range 0–38.9 → step 10 → bins at 0, 10, 20, 30, 40
   const step = niceStep((rawMax - rawMin) / 5);
   const min = Math.floor(rawMin / step) * step;
   const max = Math.ceil(rawMax / step) * step;
   const binCount = Math.round((max - min) / step);
 
+  // Build one bin object per range, counting values per key
+  // Left-inclusive, right-exclusive — except the last bin which is inclusive on both ends
   return Array.from({ length: binCount }, (_, i) => {
     const lo = min + i * step;
     const hi = lo + step;
