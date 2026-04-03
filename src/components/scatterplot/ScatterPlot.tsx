@@ -25,19 +25,15 @@ interface DataPoint {
 }
 
 function CustomDot({ cx, cy }: { cx?: number; cy?: number }) {
-  const [hovered, setHovered] = useState(false);
   return (
     <circle
       cx={cx}
       cy={cy}
-      r={hovered ? 10 : 7}
-      fill={hovered ? theme.colors.accent : theme.colors.primary}
-      fillOpacity={0.65}
-      stroke={hovered ? theme.colors.accent : theme.colors.primary}
-      strokeWidth={1.5}
-      style={{ cursor: "pointer", transition: "r 0.15s, fill 0.15s" }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="[r:7px] hover:[r:10px] 
+      fill-(--color-primary) hover:fill-(--color-accent) 
+      stroke-(--color-primary) hover:stroke-(--color-accent)
+      [fill-opacity:0.65] stroke-[1.5]
+      cursor-pointer transition-[r,fill,stroke] duration-150"
     />
   );
 }
