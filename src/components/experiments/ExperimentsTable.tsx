@@ -63,8 +63,10 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
   // Only re-sort when filtered data or sort params change — not on page or column toggle
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
-      const va = sortKey === "date" ? a.date.getTime() : getCellValue(a, sortKey);
-      const vb = sortKey === "date" ? b.date.getTime() : getCellValue(b, sortKey);
+      const va =
+        sortKey === "date" ? a.date.getTime() : getCellValue(a, sortKey);
+      const vb =
+        sortKey === "date" ? b.date.getTime() : getCellValue(b, sortKey);
       if (va < vb) return sortAsc ? -1 : 1;
       if (va > vb) return sortAsc ? 1 : -1;
       return a.id.localeCompare(b.id);
@@ -111,7 +113,7 @@ function ExperimentsTable({ experiments }: ExperimentTableProps) {
           />
         </div>
       </div>
-      <div className="bg-(--color-surface) border border-(--color-border) rounded-b-lg overflow-x-auto overflow-y-auto max-h-[calc(100vh-160px)] -mt-4">
+      <div className="bg-(--color-surface) border border-(--color-border) rounded-b-lg overflow-x-auto -mt-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-(--color-border) bg-(--color-background) sticky top-0">

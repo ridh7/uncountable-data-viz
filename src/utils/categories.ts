@@ -40,7 +40,6 @@ export const HISTOGRAM_ROWS: InputGroup[][] = [
   [INPUT_GROUPS[5], INPUT_GROUPS[6], INPUT_GROUPS[7]],
 ];
 
-// keyValues: { "Polymer 1": [v1, v2, ...], "Polymer 2": [...], ... }
 function niceStep(roughStep: number): number {
   const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
   const normalized = roughStep / magnitude;
@@ -68,13 +67,16 @@ export function computeGroupBins(
   // (avoids division by zero when computing step size)
   if (rawMin === rawMax) {
     const bin: Record<string, number | string> = { label: niceLabel(rawMin) };
-    Object.entries(keyValues).forEach(([k, vals]) => { bin[k] = vals.length; });
+    Object.entries(keyValues).forEach(([k, vals]) => {
+      bin[k] = vals.length;
+    });
     return [bin];
   }
 
   // Compute "nice" step and align boundaries to clean multiples
   // e.g., range 0–38.9 → step 10 → bins at 0, 10, 20, 30, 40
-  const step = niceStep((rawMax - rawMin) / 5);
+  const approxBinCount = 5;
+  const step = niceStep((rawMax - rawMin) / approxBinCount);
   const min = Math.floor(rawMin / step) * step;
   const max = Math.ceil(rawMax / step) * step;
   const binCount = Math.round((max - min) / step);
@@ -86,7 +88,9 @@ export function computeGroupBins(
     const hi = lo + step;
     const bin: Record<string, number | string> = { label: niceLabel(lo) };
     Object.entries(keyValues).forEach(([k, vals]) => {
-      bin[k] = vals.filter((v) => v >= lo && (i === binCount - 1 ? v <= hi : v < hi)).length;
+      bin[k] = vals.filter(
+        (v) => v >= lo && (i === binCount - 1 ? v <= hi : v < hi),
+      ).length;
     });
     return bin;
   });

@@ -124,33 +124,50 @@ function ScatterPlot({ experiments }: ScatterPlotProps) {
   const exportPng = useCallback(() => {
     const svg = chartRef.current?.querySelector("svg");
     if (!svg) return;
+
     const { width, height } = svg.getBoundingClientRect();
+
     const serialized = new XMLSerializer().serializeToString(svg);
+
+    // Wrap the string in a Blob so it can be treated as a "file"
     const blob = new Blob([serialized], {
       type: "image/svg+xml;charset=utf-8",
     });
+
+    // 5. Create a temporary browser URL that points to that Blob
     const url = URL.createObjectURL(blob);
     const img = new Image();
+
     img.onerror = () => {
       URL.revokeObjectURL(url);
       console.error("Failed to load SVG for PNG export");
     };
+
     img.onload = () => {
       const canvas = document.createElement("canvas");
+      // Support Retina/High-DPI displays by scaling the canvas
       const scale = window.devicePixelRatio || 1;
       canvas.width = width * scale;
       canvas.height = height * scale;
+
       const ctx = canvas.getContext("2d")!;
       ctx.scale(scale, scale);
+
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, width, height);
+
       ctx.drawImage(img, 0, 0, width, height);
+
+      // Clean up the temporary URL to prevent memory leaks
       URL.revokeObjectURL(url);
+
+      // Trigger a "fake" click on a hidden link to start the download
       const link = document.createElement("a");
       link.download = `scatter_${xKey}_vs_${yKey}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     };
+
     img.src = url;
   }, [xKey, yKey]);
 
